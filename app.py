@@ -58,11 +58,11 @@ def parse_tech_stack(stack):
 
 
 def initialize_google_sheets():
-    SERVICE_ACCOUNT_FILE = 'synapse-recruitment-34e7b48899b4.json'
+    # SERVICE_ACCOUNT_FILE = 'synapse-recruitment-34e7b48899b4.json'
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-    if not os.path.exists(SERVICE_ACCOUNT_FILE):
-        st.error(f"Service account file not found at {SERVICE_ACCOUNT_FILE}")
-        return None
+    # if not os.path.exists(SERVICE_ACCOUNT_FILE):
+    #     st.error(f"Service account file not found at {SERVICE_ACCOUNT_FILE}")
+    #     return None
     creds = service_account.Credentials.from_dict(
         GCP_SERVICE_ACCOUNT, scopes=SCOPES
     )
