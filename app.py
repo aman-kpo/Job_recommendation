@@ -63,7 +63,7 @@ def initialize_google_sheets():
     # if not os.path.exists(SERVICE_ACCOUNT_FILE):
     #     st.error(f"Service account file not found at {SERVICE_ACCOUNT_FILE}")
     #     return None
-    creds = service_account.Credentials.from_dict(
+    creds = service_account.Credentials.from_service_account_info(
         GCP_SERVICE_ACCOUNT, scopes=SCOPES
     )
     return gspread.authorize(creds)
