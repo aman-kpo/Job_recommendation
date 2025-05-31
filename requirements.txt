@@ -1,0 +1,10 @@
+gspread
+langchain_core
+langchain_google_genai
+langchain_openai
+pandas
+protobuf
+pydantic
+PyPDF2
+python-dotenv
+streamlit
