@@ -16,9 +16,9 @@ import json
 import re
 
 # load_dotenv()
-OPENAI_API_KEY = st.secret["OPENAI_API_KEY"]
-GOOGLE_API_KEY = st.secret["GOOGLE_API_KEY"]
-GCP_SERVICE_ACCOUNT = st.secret["GCP_SERVICE_ACCOUNT"]
+OPENAI_API_KEY = st.secrets["OPENAI_API_KEY"]
+GOOGLE_API_KEY = st.secrets["GOOGLE_API_KEY"]
+GCP_SERVICE_ACCOUNT = st.secrets["GCP_SERVICE_ACCOUNT"]
 GCP_SERVICE_ACCOUNT = GCP_SERVICE_ACCOUNT.replace("\n", "\\n")
 GCP_SERVICE_ACCOUNT = json.loads(GCP_SERVICE_ACCOUNT)
 
