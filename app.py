@@ -113,7 +113,7 @@ def structure_resume_data(resume_text):
     return (prompt | sum_llm).invoke({"resume_text": resume_text})
 
 
-ef eval_jobs(jobs_df, resume_text):
+def eval_jobs(jobs_df, resume_text):
     # 1. Extract candidate’s structured info (including industry)
     response = structure_resume_data(resume_text)
     candidate_industry = response.industry.strip().lower()
