@@ -176,9 +176,37 @@ def eval_jobs(jobs_df, resume_text):
         Only clinic or outpatient billing experience
         No leadership track record
         Gaps in employment or C2C/contractor history""",
-        "Others": """Analyze the job details with respect to candidate data and determine if it is a good fit for this candidate, but assigning a relevance score out of 10."""
+        "healthcare":"""Education:
+Bachelor's degree in Healthcare Administration, Finance, or similar
+Master’s degree (MHA/MBA) is a bonus
+Credentialed via HFMA, AAHAM, or similar organization
 
-        }
+✅ Experience:
+10–15 years total healthcare RCM experience
+5+ years in leadership roles managing $100M+ revenue cycles
+Oversaw end-to-end billing, coding, collections, denials, payer contracting
+
+✅ Domain Expertise:
+Familiar with Epic, Cerner, or Meditech systems
+Track record of reducing AR days and improving collections
+Deep understanding of Medicare, Medicaid, commercial payers
+
+✅ Stability:
+3–5 year tenures per company
+Logical promotions (e.g., RCM Manager → Director → AVP)
+
+
+🚫 Red Flags
+Only clinic or outpatient billing experience
+
+
+No leadership track record
+
+
+Gaps in employment or C2C/contractor history
+""",
+        "Others": """Analyze the job details with respect to candidate data and determine if it is a good fit for this candidate, but assigning a relevance score out of 10."""}
+
     # 2. Pre‐filter: only keep jobs whose Industry equals candidate’s industry
     #    (case‐insensitive comparison)
     jobs_df['job_industry_lower'] = jobs_df['Industry'].astype(str).str.strip().str.lower()
@@ -207,8 +235,10 @@ def eval_jobs(jobs_df, resume_text):
     elif candidate_industry=="finance/accounting":
         system_prompt = f"""You are an expert recruiter your task to analyze job descriptions based on below criteria \n {prompts['finance/accounting']}
  \n"""
+    elif candidate_industry=="healthcare":
+        system_prompt = f"""You are an expert recruiter your task to analyze job descriptions based on below criteria \n {prompts['healthcare']}"""
     else:
-        system_prompt = f"""You are an expert recruiter your task to analyze job descriptions based on below criteria \n {prompts['Others']} \n"""
+        system_prompt = f"""You are an expert recruiter your task to analyze job descriptions based on below criteria \n {prompts['others']} \n"""
     
     # system_msg = """
     # You are an expert recruiter. Filter by location, experience, and skills,
