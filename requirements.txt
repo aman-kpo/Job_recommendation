@@ -8,3 +8,4 @@ pydantic
 PyPDF2
 python-dotenv
 streamlit
+geopy
