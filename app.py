@@ -25,7 +25,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import multiprocessing as mp
 
 # Configuration
-MAX_WORKERS = min(8, mp.cpu_count())  # Limit concurrent workers
+MAX_WORKERS = min(10, mp.cpu_count())  # Limit concurrent workers
 BATCH_SIZE = 5
 
 # load_dotenv()
