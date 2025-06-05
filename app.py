@@ -31,6 +31,7 @@ class structure(BaseModel):
     yoe: str = Field(description="Years of experience of the candidate.")
     experience: str = Field(description="A brief summary of the candidate's past experience.")
     industry: str = Field(description="The industry the candidate has experience in.(Tech,Legal,Finance/Accounting,Healthcare,Industrial,Logistics,Telecom,Admin,Other)")
+    
 
 
 class Job(BaseModel):
@@ -41,6 +42,7 @@ class Job(BaseModel):
     description: str = Field(description="A brief description of the job.")
     relevance_score: float = Field(description="Relevance score of the job to the candidate's resume.")
     industry: str = Field(description="The industry the job is in.(Tech,Legal,Finance/Accounting,Healthcare,Industrial,Logistics,Telecom,Admin,Other)")
+    justification: str = Field(description = "Reason for giving this relevance score and what all areas need to be improved by the candidate")
 
 
 
@@ -205,7 +207,7 @@ No leadership track record
 
 Gaps in employment or C2C/contractor history
 """,
-        "Others": """Analyze the job details with respect to candidate data and determine if it is a good fit for this candidate, but assigning a relevance score out of 10."""}
+        "Others": """Analyze the job details with respect to candidate data and determine if it is a good fit for this candidate, and assigning a relevance score out of 10 based on how closely the profile matches with job."""}
 
     # 2. Pre‐filter: only keep jobs whose Industry equals candidate’s industry
     #    (case‐insensitive comparison)
@@ -292,7 +294,7 @@ Gaps in employment or C2C/contractor history
             "description":    eval_job.description,
             "relevance_score": eval_job.relevance_score,
             "industry":       eval_job.industry,
-        })
+            "Reason": eval_jobs.justification})
         time.sleep(5)  # Simulate processing delay
 
     progress_bar.empty()
