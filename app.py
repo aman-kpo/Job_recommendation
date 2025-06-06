@@ -794,6 +794,162 @@ def eval_jobs_parallel(jobs_df, resume_text, user_location, max_distance, includ
 
     return df_results
 
+# def main():
+#     st.title("🚀 Parallel Resume Evaluator and Job Recommender")
+#     st.markdown("*Powered by parallel processing for faster job matching*")
+
+#     # Initialize session state flags
+#     if 'evaluation_running' not in st.session_state:
+#         st.session_state.evaluation_running = False
+#     if 'evaluation_complete' not in st.session_state:
+#         st.session_state.evaluation_complete = False
+#     if 'jobs_data_loaded' not in st.session_state:
+#         st.session_state.jobs_data_loaded = False
+#     if 'max_workers' not in st.session_state:
+#         st.session_state.max_workers = min(4, MAX_WORKERS)
+
+#     st.write(st.session_state)
+
+
+#     # Performance metrics display
+#     col1, col2, col3 = st.columns(3)
+#     with col1:
+#         st.metric("CPU Cores Available", mp.cpu_count())
+#     with col2:
+#         st.metric("Max Workers", MAX_WORKERS)
+#     with col3:
+#         if 'jobs_data_loaded' in st.session_state and st.session_state.jobs_data_loaded:
+#             jobs_count = len(st.session_state.jobs_df) if st.session_state.jobs_df is not None else 0
+#             st.metric("Jobs in Database", jobs_count)
+
+#     uploaded_file = st.file_uploader("Upload your resume (PDF)", type=["pdf"])
+
+#     # Check for resume changes and clear cache if needed
+#     if uploaded_file is not None:
+#         resume_changed = check_resume_change(uploaded_file)
+#         if resume_changed:
+#             # Reset jobs data loading flag to reload fresh data
+#             st.session_state.jobs_data_loaded = False
+
+#     # Load jobs data (fresh load for each new resume)
+#     if not st.session_state.jobs_data_loaded and uploaded_file is not None:
+#         with st.spinner("Loading fresh jobs database..."):
+#             st.session_state.jobs_df = load_jobs_data()
+#             st.session_state.jobs_data_loaded = True
+#             if st.session_state.jobs_df is not None:
+#                 st.success(f"✅ Loaded {len(st.session_state.jobs_df)} jobs from database (fresh data)")
+
+#     # Show "Stop Evaluation" while the loop is running
+#     if st.session_state.evaluation_running:
+#         if st.button("🛑 Stop Evaluation", type="secondary"):
+#             st.session_state.evaluation_running = False
+#             st.warning("User requested to stop evaluation.")
+
+#     if uploaded_file is not None:
+#         # Extract resume text using modified function (with fresh cache detection)
+#         resume_text = extract_and_process_resume(uploaded_file)
+        
+#         if resume_text.strip():
+#             # Show location selection and preferences
+#             st.subheader("📍 Location Preferences")
+#             user_location, max_distance, include_exact, include_remote = get_user_location_preferences(resume_text)
+            
+#             # Only show the generate button if we have all required inputs and not currently running
+#             can_generate = (
+#                 user_location.strip() and 
+#                 st.session_state.get('location_preferences_set', False) and
+#                 not st.session_state.evaluation_running and
+#                 st.session_state.jobs_df is not None
+#             )
+            
+#             if can_generate:
+#                 if st.button("🚀 Generate Recommendations (Fresh Analysis)", type="primary"):
+#                     st.session_state.evaluation_running = True
+#                     st.session_state.evaluation_complete = False
+
+#                     st.success("✅ Resume text extracted successfully! Starting fresh analysis...")
+
+#                     # Record start time for performance measurement
+#                     start_time = time.time()
+
+#                     # Run the parallel evaluation
+#                     with st.spinner("Finding and evaluating relevant jobs in parallel..."):
+#                         recs = eval_jobs_parallel(
+#                             st.session_state.jobs_df, 
+#                             resume_text, 
+#                             user_location, 
+#                             max_distance, 
+#                             include_exact, 
+#                             include_remote,
+#                             st.session_state.max_workers
+#                         )
+
+#                     # Calculate and display performance metrics
+#                     end_time = time.time()
+#                     processing_time = end_time - start_time
+                    
+#                     # Display results
+#                     if not recs.empty:
+#                         st.write("## 🎯 Recommended Jobs:")
+                        
+#                         # Performance summary
+#                         jobs_per_second = len(recs) / processing_time if processing_time > 0 else 0
+#                         st.info(f"""
+#                         **Performance Summary (Fresh Analysis):**
+#                         - Processing time: {processing_time:.1f} seconds
+#                         - Jobs evaluated per second: {jobs_per_second:.1f}
+#                         - Workers used: {st.session_state.max_workers}
+#                         - Cache status: Fresh analysis completed
+#                         """)
+                        
+#                         st.dataframe(recs, use_container_width=True)
+#                         st.session_state.evaluation_complete = True
+#                     else:
+#                         st.warning("No matching jobs found or evaluation was halted early.")
+
+#                     # Mark evaluation as done
+#                     st.session_state.evaluation_running = False
+#             else:
+#                 if st.session_state.jobs_df is None:
+#                     st.error("❌ Failed to load jobs database. Please refresh the page.")
+#                 elif not user_location.strip():
+#                     st.warning("⚠️ Please enter a location to proceed with job recommendations.")
+#                 elif not st.session_state.get('location_preferences_set', False):
+#                     st.info("ℹ️ Please set your location preferences above to continue.")
+
+#         # After evaluation finishes, allow the user to try another resume
+#         if st.session_state.evaluation_complete:
+#             if st.button("📄 Upload New Resume", type="secondary"):
+#                 # Clear everything for a complete fresh start
+#                 clear_all_caches()
+#                 st.session_state.jobs_data_loaded = False
+#                 st.session_state.evaluation_complete = False
+#                 st.rerun()
+
+#     # Add cache status information in sidebar
+#     with st.sidebar:
+#         st.subheader("🔄 Cache Status")
+#         if 'current_resume_hash' in st.session_state:
+#             st.success("✅ Resume processed")
+#         else:
+#             st.info("⏳ No resume uploaded")
+        
+#         if st.session_state.get('jobs_data_loaded', False):
+#             st.success("✅ Jobs data loaded")
+#         else:
+#             st.info("⏳ Jobs data not loaded")
+        
+        
+#         if st.button("🗑️ Clear All Cache Manually"):
+#             clear_all_caches()
+#             st.session_state.jobs_data_loaded = False
+#             st.success("All cache cleared!")
+#             st.rerun()
+
+# if __name__ == "__main__":
+#     main()
+
+
 def main():
     st.title("🚀 Parallel Resume Evaluator and Job Recommender")
     st.markdown("*Powered by parallel processing for faster job matching*")
@@ -807,9 +963,10 @@ def main():
         st.session_state.jobs_data_loaded = False
     if 'max_workers' not in st.session_state:
         st.session_state.max_workers = min(4, MAX_WORKERS)
+    if 'jobs_df' not in st.session_state:
+        st.session_state.jobs_df = pd.DataFrame()  # Initialize to an empty DataFrame
 
     st.write(st.session_state)
-
 
     # Performance metrics display
     col1, col2, col3 = st.columns(3)
@@ -838,6 +995,8 @@ def main():
             st.session_state.jobs_data_loaded = True
             if st.session_state.jobs_df is not None:
                 st.success(f"✅ Loaded {len(st.session_state.jobs_df)} jobs from database (fresh data)")
+            else:
+                st.warning("Jobs data could not be loaded.")  # Added this line
 
     # Show "Stop Evaluation" while the loop is running
     if st.session_state.evaluation_running:
@@ -848,20 +1007,20 @@ def main():
     if uploaded_file is not None:
         # Extract resume text using modified function (with fresh cache detection)
         resume_text = extract_and_process_resume(uploaded_file)
-        
+
         if resume_text.strip():
             # Show location selection and preferences
             st.subheader("📍 Location Preferences")
             user_location, max_distance, include_exact, include_remote = get_user_location_preferences(resume_text)
-            
+
             # Only show the generate button if we have all required inputs and not currently running
             can_generate = (
-                user_location.strip() and 
+                user_location.strip() and
                 st.session_state.get('location_preferences_set', False) and
                 not st.session_state.evaluation_running and
                 st.session_state.jobs_df is not None
             )
-            
+
             if can_generate:
                 if st.button("🚀 Generate Recommendations (Fresh Analysis)", type="primary"):
                     st.session_state.evaluation_running = True
@@ -875,11 +1034,11 @@ def main():
                     # Run the parallel evaluation
                     with st.spinner("Finding and evaluating relevant jobs in parallel..."):
                         recs = eval_jobs_parallel(
-                            st.session_state.jobs_df, 
-                            resume_text, 
-                            user_location, 
-                            max_distance, 
-                            include_exact, 
+                            st.session_state.jobs_df,
+                            resume_text,
+                            user_location,
+                            max_distance,
+                            include_exact,
                             include_remote,
                             st.session_state.max_workers
                         )
@@ -887,11 +1046,11 @@ def main():
                     # Calculate and display performance metrics
                     end_time = time.time()
                     processing_time = end_time - start_time
-                    
+
                     # Display results
                     if not recs.empty:
                         st.write("## 🎯 Recommended Jobs:")
-                        
+
                         # Performance summary
                         jobs_per_second = len(recs) / processing_time if processing_time > 0 else 0
                         st.info(f"""
@@ -901,7 +1060,7 @@ def main():
                         - Workers used: {st.session_state.max_workers}
                         - Cache status: Fresh analysis completed
                         """)
-                        
+
                         st.dataframe(recs, use_container_width=True)
                         st.session_state.evaluation_complete = True
                     else:
@@ -933,13 +1092,13 @@ def main():
             st.success("✅ Resume processed")
         else:
             st.info("⏳ No resume uploaded")
-        
+
         if st.session_state.get('jobs_data_loaded', False):
             st.success("✅ Jobs data loaded")
         else:
             st.info("⏳ Jobs data not loaded")
-        
-        
+
+
         if st.button("🗑️ Clear All Cache Manually"):
             clear_all_caches()
             st.session_state.jobs_data_loaded = False
