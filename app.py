@@ -808,6 +808,9 @@ def main():
     if 'max_workers' not in st.session_state:
         st.session_state.max_workers = min(4, MAX_WORKERS)
 
+    st.write(st.session_state)
+
+
     # Performance metrics display
     col1, col2, col3 = st.columns(3)
     with col1:
