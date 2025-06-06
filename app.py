@@ -58,6 +58,31 @@ class Job(BaseModel):
     industry: str = Field(description="The industry the job is in.(Tech,Legal,Finance/Accounting,Healthcare,Industrial,Logistics,Telecom,Admin,Other)")
     justification: str = Field(description = "Reason for giving this relevance score and what all areas need to be improved by the candidate")
 
+
+
+def initialize_session_state():
+    """Initialize all session state variables"""
+    if 'evaluation_running' not in st.session_state:
+        st.session_state.evaluation_running = False
+    
+    if 'evaluation_complete' not in st.session_state:
+        st.session_state.evaluation_complete = False
+    
+    if 'jobs_data_loaded' not in st.session_state:
+        st.session_state.jobs_data_loaded = False
+    
+    if 'location_preferences_set' not in st.session_state:
+        st.session_state.location_preferences_set = False
+    
+    if 'max_workers' not in st.session_state:
+        st.session_state.max_workers = MAX_WORKERS
+    
+    if 'jobs_df' not in st.session_state:
+        st.session_state.jobs_df = None
+    
+    if 'current_resume_hash' not in st.session_state:
+        st.session_state.current_resume_hash = None
+
 # ——— Cache Management Functions ———
 def get_file_hash(uploaded_file):
     """Generate a hash for the uploaded file to detect changes"""
@@ -795,22 +820,12 @@ def eval_jobs_parallel(jobs_df, resume_text, user_location, max_distance, includ
     return df_results
 
 def main():
+    initialize_session_state()
     st.title("🚀 Parallel Resume Evaluator and Job Recommender")
     st.markdown("*Powered by parallel processing for faster job matching*")
 
     # Initialize session state flags
-    if 'evaluation_running' not in st.session_state:
-        st.session_state.evaluation_running = False
-    if 'evaluation_complete' not in st.session_state:
-        st.session_state.evaluation_complete = False
-    if 'jobs_data_loaded' not in st.session_state:
-        st.session_state.jobs_data_loaded = False
-    if 'max_workers' not in st.session_state:
-        st.session_state.max_workers = min(4, MAX_WORKERS)
-
-    st.write(st.session_state)
-
-
+    
     # Performance metrics display
     col1, col2, col3 = st.columns(3)
     with col1:
