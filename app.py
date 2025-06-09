@@ -821,7 +821,7 @@ def eval_jobs_parallel(jobs_df, resume_text, user_location, max_distance, includ
 
 def main():
     initialize_session_state()
-    st.title("🚀 Parallel Resume Evaluator and Job Recommender")
+    st.title("Resume Evaluator and Job Recommender")
     st.markdown("*Powered by parallel processing for faster job matching*")
 
     # Initialize session state flags
