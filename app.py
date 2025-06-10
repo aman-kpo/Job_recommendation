@@ -344,6 +344,9 @@ def initialize_session_state():
     
     if 'smart_hiring_checked' not in st.session_state:
         st.session_state.smart_hiring_checked = False
+    
+    if 'smart_hiring_result' not in st.session_state:
+        st.session_state.smart_hiring_result = None
 
 # ——— Smart Hiring Pre-screening Function ———
 def evaluate_smart_hiring_criteria(resume_text: str, structured_resume) -> dict:
@@ -453,7 +456,7 @@ def clear_all_caches():
     evaluation_keys = [
         'evaluation_running', 'evaluation_complete', 'current_resume_hash',
         'resume_text_cached', 'structured_resume_cached', 'smart_hiring_passed',
-        'smart_hiring_checked'
+        'smart_hiring_checked', 'smart_hiring_result'
     ]
     for key in evaluation_keys:
         if key in st.session_state:
@@ -1096,6 +1099,14 @@ def get_user_location_preferences(resume_text: str) -> Tuple[str, int, bool, boo
     if not st.session_state.user_location or (hasattr(st.session_state, 'extracted_location') and not st.session_state.extracted_location):
         st.info("Please enter your preferred job location:")
         
+        # Add helper text about shortforms
+        st.markdown("""
+        💡 **Tip:** You can use common city shortforms like:
+        - NYC (New York City), SF (San Francisco), LA (Los Angeles)
+        - Chi (Chicago), DC (Washington DC), Boston, Miami, etc.
+        - International: London, Berlin, Toronto, Sydney, etc.
+        """)
+        
         user_location_input = st.text_input(
             "Location (City, State or City, Country):",
             placeholder="e.g., NYC, SF, LA, Chicago, or San Francisco, CA",
@@ -1458,16 +1469,17 @@ def main():
                     # Evaluate against smart hiring criteria
                     smart_hiring_result = evaluate_smart_hiring_criteria(resume_text, structured_resume)
                     st.session_state.smart_hiring_checked = True
+                    st.session_state.smart_hiring_result = smart_hiring_result  # Store in session state
                     
                     # Display results
                     col1, col2 = st.columns([2, 1])
                     
                     with col1:
-                        st.markdown(f"**Best Role Match:** {smart_hiring_result['role_match']}")
-                        st.markdown(f"**Smart Hiring Score:** {smart_hiring_result['score']:.1f}/10")
+                        st.markdown(f"**Best Role Match:** {st.session_state.smart_hiring_result['role_match']}")
+                        st.markdown(f"**Smart Hiring Score:** {st.session_state.smart_hiring_result['score']:.1f}/10")
                         
                         # Color-coded score display
-                        if smart_hiring_result['score'] >= 8.0:
+                        if st.session_state.smart_hiring_result['score'] >= 8.0:
                             st.success("✅ **PASSED** - Candidate meets smart hiring criteria!")
                             st.session_state.smart_hiring_passed = True
                         else:
@@ -1476,20 +1488,20 @@ def main():
                     
                     with col2:
                         # Score gauge visualization
-                        score_color = "green" if smart_hiring_result['score'] >= 8.0 else "red"
+                        score_color = "green" if st.session_state.smart_hiring_result['score'] >= 8.0 else "red"
                         st.markdown(f"""
-                        <div style="text-align: center; padding: 20px; border: 2px solid {score_color}; border-radius: 10px; background-color: {'#d4edda' if smart_hiring_result['score'] >= 8.0 else '#f8d7da'};">
-                            <h2 style="margin: 0; color: {score_color};">{smart_hiring_result['score']:.1f}/10</h2>
-                            <p style="margin: 0; color: {score_color};">{'PASS' if smart_hiring_result['score'] >= 8.0 else 'FAIL'}</p>
+                        <div style="text-align: center; padding: 20px; border: 2px solid {score_color}; border-radius: 10px; background-color: {'#d4edda' if st.session_state.smart_hiring_result['score'] >= 8.0 else '#f8d7da'};">
+                            <h2 style="margin: 0; color: {score_color};">{st.session_state.smart_hiring_result['score']:.1f}/10</h2>
+                            <p style="margin: 0; color: {score_color};">{'PASS' if st.session_state.smart_hiring_result['score'] >= 8.0 else 'FAIL'}</p>
                         </div>
                         """, unsafe_allow_html=True)
                     
                     # Detailed reasoning
                     with st.expander("📋 Detailed Smart Hiring Evaluation", expanded=False):
                         st.markdown("**Reasoning:**")
-                        st.write(smart_hiring_result['reasoning'])
+                        st.write(st.session_state.smart_hiring_result['reasoning'])
                         st.markdown("**Recommendation:**")
-                        st.write(smart_hiring_result['recommendation'])
+                        st.write(st.session_state.smart_hiring_result['recommendation'])
             
             # Only proceed if smart hiring criteria passed
             if not st.session_state.smart_hiring_passed:
@@ -1565,7 +1577,7 @@ def main():
                         - Processing time: {processing_time:.1f} seconds
                         - Jobs evaluated per second: {jobs_per_second:.1f}
                         - Workers used: {st.session_state.max_workers}
-                        - Smart hiring score: {smart_hiring_result.get('score', 'N/A'):.1f}/10
+                        - Smart hiring score: {st.session_state.smart_hiring_result.get('score', 'N/A') if st.session_state.smart_hiring_result else 'N/A'}{':.1f' if st.session_state.smart_hiring_result and 'score' in st.session_state.smart_hiring_result else ''}/10
                         """)
                         
                         st.dataframe(recs, use_container_width=True)
@@ -1617,6 +1629,29 @@ def main():
         else:
             st.info("⏳ Jobs data not loaded")
         
+        # Smart hiring criteria info
+        st.subheader("📋 Smart Hiring Criteria")
+        st.markdown(f"**Available Roles:** {len(SMART_HIRING_CRITERIA)}")
+        
+        with st.expander("View All Criteria", expanded=False):
+            for role_name in SMART_HIRING_CRITERIA.keys():
+                st.markdown(f"• {role_name}")
+        
+        # City shortforms info
+        st.subheader("🌍 Supported Locations")
+        st.markdown(f"**Recognized Cities:** {len(CITY_SHORTFORMS)}")
+        
+        with st.expander("View City Shortforms", expanded=False):
+            st.markdown("**Popular US Cities:**")
+            us_cities = {k: v for k, v in list(CITY_SHORTFORMS.items())[:20]}
+            for short, full in us_cities.items():
+                st.markdown(f"• {short.upper()} → {full}")
+            
+            st.markdown("**International Cities:**")
+            intl_cities = {k: v for k, v in list(CITY_SHORTFORMS.items())[60:80]}
+            for short, full in intl_cities.items():
+                st.markdown(f"• {short.title()} → {full}")
+        
         if st.button("🗑️ Clear All Cache Manually"):
             clear_all_caches()
             st.session_state.jobs_data_loaded = False
@@ -1625,7 +1660,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-
 
 # ___________________________________________________________________________________________________________________________________________________________
 
