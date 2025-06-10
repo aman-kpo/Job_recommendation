@@ -1630,27 +1630,7 @@ def main():
             st.info("⏳ Jobs data not loaded")
         
         # Smart hiring criteria info
-        st.subheader("📋 Smart Hiring Criteria")
-        st.markdown(f"**Available Roles:** {len(SMART_HIRING_CRITERIA)}")
-        
-        with st.expander("View All Criteria", expanded=False):
-            for role_name in SMART_HIRING_CRITERIA.keys():
-                st.markdown(f"• {role_name}")
-        
-        # City shortforms info
-        st.subheader("🌍 Supported Locations")
-        st.markdown(f"**Recognized Cities:** {len(CITY_SHORTFORMS)}")
-        
-        with st.expander("View City Shortforms", expanded=False):
-            st.markdown("**Popular US Cities:**")
-            us_cities = {k: v for k, v in list(CITY_SHORTFORMS.items())[:20]}
-            for short, full in us_cities.items():
-                st.markdown(f"• {short.upper()} → {full}")
-            
-            st.markdown("**International Cities:**")
-            intl_cities = {k: v for k, v in list(CITY_SHORTFORMS.items())[60:80]}
-            for short, full in intl_cities.items():
-                st.markdown(f"• {short.title()} → {full}")
+       
         
         if st.button("🗑️ Clear All Cache Manually"):
             clear_all_caches()
