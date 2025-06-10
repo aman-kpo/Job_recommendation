@@ -10,3 +10,4 @@ python-dotenv
 streamlit
 geopy
 aiohttp
+python-docx
