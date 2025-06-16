@@ -10,4 +10,7 @@ python-dotenv
 streamlit
 geopy
 aiohttp
+easyocr
+PyMuPDF
+Pillow
 python-docx
